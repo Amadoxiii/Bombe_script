@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>B-07 — Manuel opérateur / Révision 1</title>
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#e9e7df;color:#202d29;font:16px/1.6 Arial,sans-serif}
+main{max-width:920px;margin:auto;padding:40px 30px}header{border-top:8px solid #235d47;border-bottom:1px solid #b4bdb4;padding:20px 0 26px}
+.eyebrow{font:700 12px monospace;letter-spacing:3px;color:#356550}h1{font-size:38px;line-height:1.15;letter-spacing:-1px;margin:16px 0}h2{font-size:23px;margin:0 0 14px}
+.lead{max-width:660px;color:#536158}.tag{display:inline-block;border:1px solid #a6b5a7;border-radius:3px;padding:2px 8px;font:12px monospace}
+section{background:#faf9f4;border:1px solid #cfd4ca;padding:25px;margin-top:20px;border-radius:4px}
+.step{font:700 12px monospace;color:#356550;letter-spacing:2px;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin:14px 0}th{text-align:left;color:#356550;font-size:13px}td,th{border-bottom:1px solid #d7ddd3;padding:10px 8px}code{font:700 16px monospace;white-space:nowrap;color:#184f39}
+.note{border-left:3px solid #ac873f;padding:10px 16px;background:#f1ecdb}.example{background:#183f31;color:#e1f1e6;border:0}.example code{color:#b1f2c5}.example .step{color:#9fceb1}
+p{margin:10px 0}ul,ol{padding-left:23px}footer{font-size:12px;color:#667169;padding:25px 0}
+@media(max-width:540px){main{padding:20px 14px}h1{font-size:30px}section{padding:18px}td,th{padding:8px 4px}}
+@media print{body{background:white}main{max-width:none;padding:0}section{break-inside:avoid}header{break-after:avoid}.example{background:white;color:#202d29}.example code{color:#184f39}}
+</style>
+<main>
+<header><div class="eyebrow">FICHE DE JEU / UNITÉ B-07</div><h1>Observer.<br>Déduire. Valider.</h1>
+</header>
+<section><div class="step">00 / RELEVÉ</div><h2>Lire la plaque</h2>
+<p>La petite plaque au centre bas du boîtier porte le <strong>numéro de série</strong>, le <strong>nombre de cellules</strong> (1 à 4), le <strong>bus</strong> (A, B ou C) et le type.</p>
+<p>Dans <code>AB-4827</code>, les quatre chiffres sont <code>4827</code> et le dernier chiffre est <code>7</code>. Les deux lettres identifient le boîtier et n'entrent pas dans les calculs.</p>
+<p>Appuyer sur <strong>E</strong> pour examiner. Le survol indique la pièce et sa valeur actuelle ; les valeurs affichées viennent de l'état accepté par le serveur.</p>
+<div class="note">Le compte à rebours continue pendant la lecture du manuel. Les interrupteurs et molettes ne démarrent pas forcément à zéro.</div></section>
+<section><div class="step">01 / FIL</div><h2>Un seul fil à couper</h2>
+<table><thead><tr><th>Dernier chiffre de série</th><th>Fil</th></tr></thead><tbody>
+<tr><td>0 ou 5</td><td>Rouge</td></tr><tr><td>1 ou 6</td><td>Bleu</td></tr>
+<tr><td>2 ou 7</td><td>Vert</td></tr><tr><td>3 ou 8</td><td>Jaune</td></tr><tr><td>4 ou 9</td><td>Blanc</td></tr>
+</tbody></table><p>Les quatre autres fils restent intacts. Un mauvais fil provoque immédiatement l'échec du puzzle.</p></section>
+<section><div class="step">02 / INTERRUPTEURS</div><h2>Configurer les deux états</h2>
+<p><strong>Interrupteur 1, à gauche :</strong> ON si le dernier chiffre est pair (0, 2, 4, 6, 8) ; OFF sinon.</p>
+<p><strong>Interrupteur 2, à droite :</strong> ON avec 3 ou 4 cellules ; OFF avec 1 ou 2.</p>
+<p>Un clic inverse l'état. Utiliser l'indication <strong>ON/OFF</strong> au survol pour contrôler le résultat.</p></section>
+<section><div class="step">03 / MOLETTES</div><h2>Régler des angles absolus</h2>
+<p><strong>Molette 1, à gauche :</strong> dernier chiffre × 30°.</p>
+<table><thead><tr><th>Chiffre</th><th>Angle</th><th>Chiffre</th><th>Angle</th></tr></thead><tbody>
+<tr><td>0</td><td>0°</td><td>5</td><td>150°</td></tr><tr><td>1</td><td>30°</td><td>6</td><td>180°</td></tr>
+<tr><td>2</td><td>60°</td><td>7</td><td>210°</td></tr><tr><td>3</td><td>90°</td><td>8</td><td>240°</td></tr><tr><td>4</td><td>120°</td><td>9</td><td>270°</td></tr>
+</tbody></table>
+<p><strong>Molette 2, à droite :</strong> croiser cellules et bus.</p>
+<table><thead><tr><th>Cellules</th><th>Bus A</th><th>Bus B</th><th>Bus C</th></tr></thead><tbody>
+<tr><td>1</td><td>45°</td><td>60°</td><td>75°</td></tr><tr><td>2</td><td>90°</td><td>105°</td><td>120°</td></tr>
+<tr><td>3</td><td>135°</td><td>150°</td><td>165°</td></tr><tr><td>4</td><td>180°</td><td>195°</td><td>210°</td></tr>
+</tbody></table>
+<p>Clic gauche : <strong>+15°</strong>. Clic droit : <strong>−15°</strong>. Molette de souris : réglage dans les deux sens. L'angle boucle entre 0° et 345°.</p>
+<p>Lire l'angle au survol, dans le panneau d'inspection ou sur l'écran du boîtier. Attendre la mise à jour entre les clics.</p></section>
+<section><div class="step">04 / CLAVIER</div><h2>Construire le code à six chiffres</h2>
+<ol><li>Inverser les <strong>quatre chiffres</strong> de série, en conservant les zéros.</li><li>Ajouter le <strong>chiffre du type</strong> ci-dessous.</li><li>Ajouter le <strong>nombre de cellules</strong>.</li></ol>
+<table><thead><tr><th>Type</th><th>Chiffre</th></tr></thead><tbody>
+<tr><td>Explosive</td><td>1</td></tr><tr><td>Bio</td><td>2</td></tr><tr><td>Nuke</td><td>3</td></tr><tr><td>EMP</td><td>4</td></tr>
+</tbody></table>
+<p>Saisir les six chiffres puis <strong>#</strong>. <strong>*</strong> efface toute la saisie. La validation exige simultanément le bon fil, les deux états et les deux angles.</p>
+<p>Une validation incorrecte efface le code et retire 25 % de stabilité. Quatre erreurs ou l'expiration du timer font échouer le puzzle.</p></section>
+<section class="example"><div class="step">EXEMPLE DE LECTURE</div><h2>BIO · AB-4827 · 3 cellules · bus B</h2>
+<p>Dernier chiffre 7 → fil <strong>vert</strong>, interrupteur 1 <strong>OFF</strong>.<br>3 cellules → interrupteur 2 <strong>ON</strong>.</p>
+<p>Molette 1 : <code>210°</code> · Molette 2 : <code>150°</code>.<br>4827 inversé donne 7284, puis type 2 et cellules 3 → <code>728423</code>.</p>
+<p>Régler, saisir <code>728423</code>, puis appuyer sur <strong>#</strong>.</p></section>
+</main></html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr"><meta charset="utf-8">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font:14px Arial,sans-serif;user-select:none}
+#hint{display:none;position:absolute;top:24px;left:24px;width:310px;padding:12px 14px;color:#d9ffe9;background:rgba(5,22,15,.94);border-left:4px solid #48e891;border-radius:4px}
+strong{font-size:13px;letter-spacing:1px}#text{margin:12px 0;color:#b0efc8;min-height:32px}
+small{display:block;color:#a8bcb0;line-height:1.5}
+#identity{font:12px/1.6 monospace;padding:10px 0;border-bottom:1px solid #28553d;white-space:pre-line}
+#values{font:14px/1.8 monospace;margin:10px 0;white-space:pre-line}
+button{margin-top:10px;padding:7px 10px;color:#d9ffe9;background:#123b28;border:1px solid #2c7c54;border-radius:3px;cursor:pointer}
+body.hit{cursor:pointer}
+#manualPanel{display:none;position:absolute;right:24px;top:24px;bottom:24px;width:min(610px,calc(100vw - 410px));background:#e9e7df;border:2px solid #6c8b75;box-shadow:0 10px 60px #0008}
+#manualPanel iframe{width:100%;height:calc(100% - 46px);border:0;background:#e9e7df}
+#manualBar{height:46px;background:#183f31;color:#d9ffe9;display:flex;align-items:center;justify-content:space-between;padding:0 14px}
+#manualBar button{margin:0}
+@media(max-width:800px){#manualPanel{left:15px;right:15px;width:auto;z-index:5}}
+</style>
+<div id="hint"><strong>BOMBE INTERACTIVE</strong><div id="identity">Lecture de la plaque…</div><div id="values"></div>
+<div id="text">Visez un module</div><small>Clic gauche : agir · Clic droit / molette : régler<br>Échap ou Retour arrière : quitter</small>
+<button id="manual">Manuel B-07</button> <button id="close">Fermer</button></div>
+<div id="manualPanel"><div id="manualBar"><strong>MANUEL / RÉVISION 1</strong><button id="manualClose">Revenir au boîtier</button></div><iframe src="manual.html" title="Manuel B-07"></iframe></div>
+<script src="effects-audio.js"></script>
+<script>
+(() => {
+const hint=document.getElementById('hint'),label=document.getElementById('text');
+const manualPanel=document.getElementById('manualPanel'),identity=document.getElementById('identity'),values=document.getElementById('values');
+let active=false,session=0,lastHover=0,feedbackUntil=0,cursor=null,manualOpen=false;
+async function post(name,data={}) {
+ const response=await fetch('https://'+GetParentResourceName()+'/'+name,{
+  method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...data,session})
+ });return response.json();
+}
+function setManual(value){manualOpen=value&&active;manualPanel.style.display=manualOpen?'block':'none';}
+function show(d) {
+ active=Boolean(d.visible);session=Number(d.session)||0;
+ hint.style.display=active?'block':'none';label.textContent='Visez un module';
+ identity.textContent='Lecture de la plaque…';values.textContent='';
+ document.body.classList.remove('hit');feedbackUntil=0;cursor=null;setManual(false);
+}
+function details(d){
+ if(!active||d.session!==session)return;
+ const q=d.clues;
+ identity.textContent=q?String(d.kind).toUpperCase()+' · '+q.serial+'\n'+q.cells+' cellules · BUS '+q.bus+' · RÉV. '+q.version:'Mode fixe : configuration serveur';
+ const angle=id=>String(Number(d.knobs?.[id])||0).padStart(3,'0')+'°';
+ values.textContent='M1 '+angle('1')+'    M2 '+angle('2')+'\nI1 '+(d.switches?.['1']?'ON':'OFF')+'      I2 '+(d.switches?.['2']?'ON':'OFF');
+}
+async function close() {
+ if(!active)return;
+ const closingSession=session;
+ active=false;hint.style.display='none';setManual(false);document.body.classList.remove('hit');
+ try{await post('ibomb_close');}catch(e){
+  if(session===closingSession){active=true;hint.style.display='block';label.textContent='Fermeture non reçue, réessayez.';}
+ }
+}
+window.addEventListener('message',e=>{
+ if(e.data?.action==='inspect')show(e.data);
+ if(e.data?.action==='details')details(e.data);
+});
+document.getElementById('close').addEventListener('click',close);
+document.getElementById('manual').addEventListener('click',()=>setManual(!manualOpen));
+document.getElementById('manualClose').addEventListener('click',()=>setManual(false));
+function escape(e){if(active&&(e.key==='Escape'||e.key==='Backspace')){e.preventDefault();e.stopPropagation();close();}}
+document.addEventListener('keydown',escape);
+// Le focus peut se trouver dans le manuel embarqué, dont le document est de même origine.
+const frame=document.querySelector('iframe');
+frame.addEventListener('load',()=>{frame.contentDocument?.addEventListener('keydown',escape);});
+document.addEventListener('contextmenu',e=>e.preventDefault());
+const blocked=e=>hint.contains(e.target)||manualPanel.contains(e.target);
+async function hover(){
+ if(!active||!cursor||manualOpen||performance.now()-lastHover<70)return;
+ lastHover=performance.now();const current=session;
+ try{
+  const result=await post('ibomb_hover',cursor);
+  if(!active||session!==current)return;
+  document.body.classList.toggle('hit',result.hit===true);
+  if(performance.now()>feedbackUntil)label.textContent=result.label;
+ }catch(e){if(active&&session===current)label.textContent='Interface indisponible';}
+}
+document.addEventListener('mousemove',e=>{
+ cursor=blocked(e)?null:{x:e.clientX/innerWidth,y:e.clientY/innerHeight};
+ if(!cursor)document.body.classList.remove('hit');
+ return hover();
+});
+// Actualiser aussi l'angle lorsque la souris reste immobile après un clic.
+setInterval(hover,180);
+async function interact(e,wheel) {
+ if(!active||manualOpen||blocked(e)||(!wheel&&e.button!==0&&e.button!==2))return;
+ e.preventDefault();const current=session;
+ try {
+  const result=await post('ibomb_click',{x:e.clientX/innerWidth,y:e.clientY/innerHeight,
+   direction:wheel?(e.deltaY>0?-1:1):(e.button===2?-1:1),wheel});
+  if(active&&current===session){label.textContent=result.message;feedbackUntil=performance.now()+250;}
+ }catch(e){if(active&&current===session)label.textContent='Clic non reçu par le script.';}
+}
+document.addEventListener('mousedown',e=>interact(e,false));
+document.addEventListener('wheel',e=>interact(e,true),{passive:false});
+post('ibomb_ready').then(d=>{if(session===0&&!active)show(d)}).catch(()=>{});
+})();
+</script></html>
